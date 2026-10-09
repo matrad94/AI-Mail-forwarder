@@ -1,11 +1,20 @@
-Zasady kategoryzacji wiadomości:
+Zasady kategoryzacji i routingu wiadomości e-mail:
 
-- Zgłoszenia sprzętowe, w szczególności dotyczące uszkodzonego monitora,
-  komputera lub klawiatury, kieruj do it@example.com.
-- Zgłoszenia dotyczące dostępu do systemów, problemów z logowaniem
-  i resetowania haseł kieruj do help-desk@example.com.
-- Zgłoszenia urlopowe, kadrowe, oświadczenia i umowy kieruj do
-  kadry@example.com lub human-resources@example.com.
-- Niejasne, ogólne lub nierozpoznane zapytania kieruj do other@example.com.
+1. KADRY I SPRAWY PRACOWNICZE -> kadry@example.com (lub human-resources@example.com)
+   - Wszelkie zapytania o urlopy (np. urlop wypoczynkowy, macierzyński, wniosek urlopowy, wymiar urlopu).
+   - Sprawy kadrowe, oświadczenia, umowy o pracę, zaświadczenia o zarobkach, zwolnienia lekarskie (L4).
 
-Wybierz jeden najlepiej dopasowany adres i użyj go jako odbiorcy wiadomości.
+2. DOSTĘP I LOGOWANIE -> help-desk@example.com
+   - Problemy z logowaniem, zablokowane konto, resetowanie haseł.
+   - Dostęp do systemów, VPN, uprawnienia w aplikacjach.
+
+3. SPRZĘT I AWARIE FIZYCZNE -> it@example.com
+   - Problem ze sprzętem: uszkodzony monitor, komputer, klawiatura, myszka, drukarka.
+   - Awaria sprzętowa stanowiska pracy.
+
+4. POZOSTAŁE / INNE -> other@example.com
+   - Zapytania ogólne, niejasne, niezwiązane z pracą (np. rzeczy znalezione, pytania o catering).
+   - Wszystkie zgłoszenia, których nie da się jednoznacznie przypisać do powyższych kategorii.
+
+Instrukcja dla modelu:
+Przeanalizuj treść wiadomości i wybierz dokładnie JEDEN adres e-mail z powyższych reguł. Jeśli wiadomość dotyczy urlopu lub kadr, BEZWZGLĘDNIE wybierz kadry@example.com lub human-resources@example.com.
