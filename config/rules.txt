@@ -1,0 +1,11 @@
+Zasady kategoryzacji wiadomości:
+
+- Zgłoszenia sprzętowe, w szczególności dotyczące uszkodzonego monitora,
+  komputera lub klawiatury, kieruj do it@example.com.
+- Zgłoszenia dotyczące dostępu do systemów, problemów z logowaniem
+  i resetowania haseł kieruj do help-desk@example.com.
+- Zgłoszenia urlopowe, kadrowe, oświadczenia i umowy kieruj do
+  kadry@example.com lub human-resources@example.com.
+- Niejasne, ogólne lub nierozpoznane zapytania kieruj do other@example.com.
+
+Wybierz jeden najlepiej dopasowany adres i użyj go jako odbiorcy wiadomości.
