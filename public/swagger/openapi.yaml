@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Email Router API
   version: 1.0.0
-  description: API for classifying and dispatching incoming email messages.
+  description: API for classifying and dispatching incoming email messages. In the local development environment, sent messages are captured by MailHog at http://localhost:8025.
 paths:
   /api/v1/dispatch:
     post:
@@ -24,6 +24,10 @@ paths:
                 message:
                   type: string
                   description: Message content to classify and route.
+                subject:
+                  type: string
+                  nullable: true
+                  description: Optional email subject. If omitted, null, or empty, the agent generates a concise subject from the message.
       responses:
         '200':
           description: Email routed and dispatch status returned.
@@ -38,7 +42,7 @@ paths:
                     type: string
                     description: Summary of the dispatch status.
         '400':
-          description: Request data is missing or invalid, or the enabled security guard rejected the message as a prompt-injection attempt.
+          description: Request data is missing or invalid, the subject is not a string or null, or the enabled security guard rejected the message as a prompt-injection attempt.
           content:
             application/json:
               schema:

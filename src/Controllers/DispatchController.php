@@ -36,12 +36,25 @@ class DispatchController
             $this->respond(400, ['error' => 'Fields "email" and "message" are required.']);
         }
 
+        if (
+            array_key_exists('subject', $payload)
+            && $payload['subject'] !== null
+            && !is_string($payload['subject'])
+        ) {
+            $this->respond(400, ['error' => 'Field "subject" must be a string or null.']);
+        }
+
         $email = trim($payload['email']);
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $this->respond(400, ['error' => 'Field "email" must be a valid email address.']);
         }
 
         $message = $payload['message'];
+        $subject = $payload['subject'] ?? null;
+        if (is_string($subject) && trim($subject) === '') {
+            $subject = null;
+        }
+
         if ($this->isSecurityGuardEnabled()) {
             $guard = SecurityGuardAgent::make()
                 ->setThreadId('security-guard-' . bin2hex(random_bytes(16)));
@@ -55,7 +68,7 @@ class DispatchController
             $message,
         ) === 1;
 
-        $reply = MessageRouterAgent::forSender($email, $urgent)->route($message);
+        $reply = MessageRouterAgent::forSender($email, $message, $subject, $urgent)->route($message);
         $this->respond(200, ['message' => $reply]);
     }
 

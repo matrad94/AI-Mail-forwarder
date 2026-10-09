@@ -15,11 +15,13 @@ class MessageRouterAgent extends Agent
 {
     private const BASE_SYSTEM_PROMPT = <<<'PROMPT'
 You are an email routing agent. For every incoming message, classify it using the
-provided rules and call the send_routed_email tool exactly once. Choose exactly one
-recipient from the tool's allowed recipient list, write a concise subject, and
-preserve the message meaning in the email body. Do not ask follow-up questions or
-reply with a routing suggestion instead of calling the tool. Only report success
-after the tool confirms that the email was sent.
+provided rules and call the send_routed_email tool exactly once. Your only task is
+to choose the appropriate recipient email address (category), provide a concise
+subject if the API did not provide one, and call the sending tool. Do NOT rewrite,
+summarize, or alter the user's original message body. The tool sends the original
+message body unchanged. Do not ask follow-up questions or reply with a routing
+suggestion instead of calling the tool. Only report success after the tool
+confirms that the email was sent.
 PROMPT;
 
     protected function provider(): AIProviderInterface
@@ -48,11 +50,16 @@ PROMPT;
         return $instructions;
     }
 
-    public static function forSender(string $originalSenderEmail, bool $urgent = false): self
+    public static function forSender(
+        string $originalSenderEmail,
+        string $originalMessage,
+        ?string $originalSubject = null,
+        bool $urgent = false,
+    ): self
     {
         return self::make()
             ->setThreadId('email-router-' . bin2hex(random_bytes(16)))
-            ->addTool(new SendEmailTool($originalSenderEmail, $urgent));
+            ->addTool(new SendEmailTool($originalSenderEmail, $originalMessage, $originalSubject, $urgent));
     }
 
     public function route(string $message): string

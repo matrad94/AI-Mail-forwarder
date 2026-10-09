@@ -8,7 +8,7 @@ Mikroserwis do inteligentnego routingu wiadomości e-mail. Klasyfikuje zgłoszen
 - **Routing AI:** Agent Neuron AI korzysta z lokalnego modelu Ollama `qwen2.5:3b` i wywoływania narzędzi, aby wybrać dział i wysłać wiadomość.
 - **Bezpieczeństwo:** `SecurityGuardAgent` przed routingiem sprawdza wiadomości pod kątem prób Prompt Injection. Walidację można wyłączyć przez `ENABLE_SECURITY_GUARD=false`; domyślnie jest włączona.
 - **Pilne wiadomości:** Wykrycie słów oznaczających pilność dodaje prefiks `[URGENT]` do tematu e-maila.
-- **Testowanie poczty:** Mailpit przechwytuje wiadomości lokalnie. Adres nadawcy jest ustawiany jako `Reply-To`; wiadomości nie są wysyłane do zewnętrznych odbiorców.
+- **Testowanie poczty:** MailHog przechwytuje wiadomości lokalnie. Adres nadawcy jest ustawiany jako `Reply-To`; wiadomości nie są wysyłane do zewnętrznych odbiorców.
 - **Reguły routingu:** Edytowalne reguły kategoryzacji znajdują się w `config/rules.txt`; Agent odczytuje plik przy każdym nowym żądaniu, więc zmiany reguł nie wymagają ponownego budowania obrazu.
 - **Lokalna dokumentacja API:** Pliki Swagger UI znajdują się w `public/swagger/assets/`; interfejs działa bez pobierania JavaScriptu ani CSS z CDN.
 - **Dozwoleni odbiorcy:** `it@example.com`, `help-desk@example.com`, `kadry@example.com`, `human-resources@example.com`; `other@example.com` jest adresem awaryjnym.
@@ -23,13 +23,13 @@ Uruchom w katalogu projektu:
 docker compose up -d --build
 ```
 
-Compose buduje API, uruchamia Ollamę i Mailpit, pobiera model `qwen2.5:3b`, a następnie uruchamia API po inicjalizacji modelu. Pierwsze uruchomienie może potrwać kilka minut.
+Compose buduje API, uruchamia Ollamę i MailHog, pobiera model `qwen2.5:3b`, a następnie uruchamia API po inicjalizacji modelu. Pierwsze uruchomienie może potrwać kilka minut.
 
 | Usługa | Adres |
 | --- | --- |
 | API | `http://localhost:8000` |
 | Dokumentacja Swagger / OpenAPI | [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs) |
-| Skrzynka Mailpit | [http://localhost:8025](http://localhost:8025) |
+| Skrzynka MailHog | [http://localhost:8025](http://localhost:8025) |
 | Ollama | `http://localhost:11434` |
 
 ## Korzystanie z API
@@ -41,12 +41,15 @@ Wyślij żądanie JSON z adresem nadawcy i treścią wiadomości:
 ```json
 {
   "email": "nadawca@example.com",
-  "message": "Treść zgłoszenia"
+  "message": "Treść zgłoszenia",
+  "subject": "Opcjonalny temat wiadomości"
 }
 ```
 
 - `email` — poprawny adres nadawcy; zostanie użyty jako `Reply-To` przekazywanej wiadomości.
 - `message` — dowolna treść do sprawdzenia, sklasyfikowania i przekierowania.
+- `subject` — opcjonalny temat typu string lub `null`. Jeśli go pominięto, ustawiono na `null` albo przekazano pusty tekst, agent wygeneruje zwięzły temat na podstawie wiadomości. Przy pilnym zgłoszeniu do tematu zostanie dodany prefiks `[URGENT] `.
+- Treść wysyłanego e-maila jest dokładnie oryginalną wartością `message` i nie jest parafrazowana ani streszczana przez model.
 - `200 OK` — żądanie zostało obsłużone; odpowiedź zawiera pole `message` ze statusem agenta.
 - `400 Bad Request` — niepoprawny JSON lub pola, nieprawidłowy adres nadawcy albo próba Prompt Injection odrzucona przez włączony moduł bezpieczeństwa.
 
@@ -93,4 +96,4 @@ curl -X POST "http://localhost:8000/api/v1/dispatch" \
 
 Oczekiwany odbiorca awaryjny: `other@example.com`.
 
-Klasyfikacja modelu nie jest deterministyczna. Rzeczywistego odbiorcę i nagłówek `Reply-To` można sprawdzić w Mailpit.
+Klasyfikacja modelu nie jest deterministyczna. Rzeczywistego odbiorcę i nagłówek `Reply-To` można sprawdzić w MailHog.

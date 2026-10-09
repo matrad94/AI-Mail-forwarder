@@ -28,6 +28,8 @@ class SendEmailTool extends Tool
 
     public function __construct(
         private readonly string $originalSenderEmail,
+        private readonly string $originalMessage,
+        private readonly ?string $originalSubject = null,
         private readonly bool $urgent = false,
     ) {
     }
@@ -45,33 +47,30 @@ class SendEmailTool extends Tool
             new ToolProperty(
                 name: 'subject',
                 type: PropertyType::STRING,
-                description: 'A concise subject for the forwarded email.',
-                required: true,
-            ),
-            new ToolProperty(
-                name: 'body',
-                type: PropertyType::STRING,
-                description: 'The email content, preserving the sender message.',
+                description: 'A concise subject based on the original message; ignored when the API provided a subject.',
                 required: true,
             ),
         ];
     }
 
-    public function __invoke(string $recipient_email, string $subject, string $body): ToolOutput
+    public function __invoke(string $recipient_email, string $subject): ToolOutput
     {
         $recipientEmail = strtolower(trim($recipient_email));
         if (!in_array($recipientEmail, self::ALLOWED_RECIPIENTS, true)) {
             $recipientEmail = 'other@example.com';
         }
 
-        $subject = trim($subject);
-        if ($this->urgent) {
-            $subject = '[URGENT] ' . preg_replace('/^\[URGENT\]\s*/i', '', $subject);
+        $subject = $this->originalSubject ?? trim($subject);
+        if ($subject === '') {
+            $subject = 'Forwarded email';
+        }
+        if ($this->urgent && preg_match('/^\[URGENT\]\s*/i', $subject) !== 1) {
+            $subject = '[URGENT] ' . $subject;
         }
 
         $mailer = new PHPMailer(true);
         $mailer->isSMTP();
-        $mailer->Host = 'mailpit';
+        $mailer->Host = getenv('SMTP_HOST') ?: 'mailhog';
         $mailer->Port = 1025;
         $mailer->SMTPAuth = false;
         $mailer->SMTPSecure = '';
@@ -80,7 +79,7 @@ class SendEmailTool extends Tool
         $mailer->addAddress($recipientEmail);
         $mailer->addReplyTo($this->originalSenderEmail);
         $mailer->Subject = $subject;
-        $mailer->Body = $body;
+        $mailer->Body = $this->originalMessage;
         $mailer->isHTML(false);
 
         try {
