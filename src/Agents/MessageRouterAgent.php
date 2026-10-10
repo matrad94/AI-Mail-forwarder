@@ -60,10 +60,12 @@ PROMPT;
             ->addTool(new SendEmailTool($originalSenderEmail, $originalMessage, $originalSubject, $urgent));
     }
 
-    public function route(string $message): string
+    public function route(string $message, string $sender): string
     {
-        return $this->chat(new UserMessage($message))
-            ->getMessage()
-            ->getContent();
+        $response = $this->chat(new UserMessage($message));
+        
+        $content = $response->getMessage()->getContent();
+
+        return (string)($content ?? 'Email routed successfully.');
     }
 }
