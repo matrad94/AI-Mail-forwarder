@@ -42,7 +42,7 @@ paths:
                     type: string
                     description: Summary of the dispatch status.
         '400':
-          description: Request data is missing or invalid, the subject is not a string or null, or the enabled security guard rejected the message as a prompt-injection attempt.
+          description: Request JSON or required fields are invalid, the sender email is invalid, or subject is not a string or null.
           content:
             application/json:
               schema:
@@ -53,3 +53,17 @@ paths:
                   error:
                     type: string
                     description: Explanation of the request validation error.
+        '403':
+          description: The enabled security guard classified the message as a prompt-injection attempt.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: Message rejected for security reasons.
+        '500':
+          description: An unexpected application or upstream service error occurred.

@@ -61,7 +61,8 @@ Wyślij żądanie JSON z adresem nadawcy i treścią wiadomości:
 - `subject` — opcjonalny temat typu string lub `null`. Jeśli go pominięto, ustawiono na `null` albo przekazano pusty tekst, agent wygeneruje zwięzły temat na podstawie wiadomości. Przy pilnym zgłoszeniu do tematu zostanie dodany prefiks `[URGENT] `.
 - Treść wysyłanego e-maila jest dokładnie oryginalną wartością `message` i nie jest parafrazowana ani streszczana przez model.
 - `200 OK` — żądanie zostało obsłużone; odpowiedź zawiera pole `message` ze statusem agenta.
-- `400 Bad Request` — niepoprawny JSON lub pola, nieprawidłowy adres nadawcy albo próba Prompt Injection odrzucona przez włączony moduł bezpieczeństwa.
+- `400 Bad Request` — niepoprawny JSON, brak wymaganych pól, nieprawidłowy adres nadawcy lub `subject` o typie innym niż string/null.
+- `403 Forbidden` — włączony moduł bezpieczeństwa zaklasyfikował wiadomość jako próbę Prompt Injection i zatrzymał ją przed routingiem. Ponieważ klasyfikację wykonuje model AI, wynik kontroli nie jest deterministyczny.
 
 ### Przykłady cURL
 
@@ -111,7 +112,7 @@ Oczekiwany odbiorca awaryjny: `other@example.com`.
 
 #### Próba Prompt Injection
 
-Moduł bezpieczeństwa jest domyślnie włączony. Poniższa treść próbuje nakłonić agenta do zignorowania instrukcji i ujawnienia prywatnej korespondencji; żądanie powinno zostać odrzucone odpowiedzią `400 Bad Request`, zamiast zostać przekazane do routingu:
+Moduł bezpieczeństwa jest domyślnie włączony. Poniższa treść próbuje nakłonić agenta do zignorowania instrukcji i ujawnienia prywatnej korespondencji. Jeśli moduł bezpieczeństwa zaklasyfikuje ją jako próbę Prompt Injection, API zwróci `403 Forbidden` (`{"error":"Message rejected for security reasons."}`) i nie przekaże jej do routingu:
 
 ```bash
 curl -i -X POST "http://localhost:8000/api/v1/dispatch" \

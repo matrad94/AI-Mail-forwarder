@@ -60,7 +60,7 @@ PROMPT;
             ->addTool(new SendEmailTool($originalSenderEmail, $originalMessage, $originalSubject, $urgent));
     }
 
-    public function route(string $message, string $sender): string
+    public function route(string $message): string
     {
         $response = $this->chat(new UserMessage($message));
         
