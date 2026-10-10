@@ -10,7 +10,7 @@ RUN apt-get update \
 
 WORKDIR /var/www/html
 
-COPY composer.json composer.lock ./
+COPY composer.* ./
 
 RUN composer install --no-dev --no-scripts --no-autoloader
 
