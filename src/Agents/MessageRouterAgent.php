@@ -27,8 +27,8 @@ PROMPT;
     protected function provider(): AIProviderInterface
     {
         return new Ollama(
-            url: getenv('OLLAMA_BASE_URL') ?: 'http://ollama:11434/api',
-            model: 'qwen2.5:3b',
+            url: getenv('OLLAMA_HOST') ?: 'http://ollama:11434/api',
+            model: getenv('OLLAMA_MODEL') ?: 'qwen2.5:3b',
             parameters: ['temperature' => 0],
         );
     }
@@ -36,13 +36,12 @@ PROMPT;
     protected function instructions(): string
     {
         $instructions = self::BASE_SYSTEM_PROMPT;
-        $rulesPath = dirname(__DIR__, 2) . '/config/rules.txt';
-
-        if (is_file($rulesPath)) {
-            $rules = file_get_contents($rulesPath);
-            if ($rules === false) {
-                throw new RuntimeException('Unable to read agent rules file: ' . $rulesPath);
-            }
+            $rulesPath = dirname(__DIR__, 2) . '/config/rules.txt';
+            if (is_file($rulesPath)) {
+                $rules = file_get_contents($rulesPath);
+                if ($rules === false) {
+                    throw new RuntimeException('Unable to read agent rules file: ' . $rulesPath);
+        }
 
             $instructions .= "\n\nAdditional categorization rules:\n" . $rules;
         }
@@ -55,8 +54,7 @@ PROMPT;
         string $originalMessage,
         ?string $originalSubject = null,
         bool $urgent = false,
-    ): self
-    {
+    ): self {
         return self::make()
             ->setThreadId('email-router-' . bin2hex(random_bytes(16)))
             ->addTool(new SendEmailTool($originalSenderEmail, $originalMessage, $originalSubject, $urgent));

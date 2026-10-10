@@ -71,7 +71,7 @@ class SendEmailTool extends Tool
         $mailer = new PHPMailer(true);
         $mailer->isSMTP();
         $mailer->Host = getenv('SMTP_HOST') ?: 'mailhog';
-        $mailer->Port = 1025;
+        $mailer->Port = (int)(getenv('SMTP_PORT') ?: 1025);
         $mailer->SMTPAuth = false;
         $mailer->SMTPSecure = '';
         $mailer->CharSet = PHPMailer::CHARSET_UTF8;

@@ -55,31 +55,35 @@ class DispatchController
             $subject = null;
         }
 
-        if ($this->isSecurityGuardEnabled()) {
+        if ($this->getEnvBool('ENABLE_SECURITY_GUARD', true)) {
             $guard = SecurityGuardAgent::make()
                 ->setThreadId('security-guard-' . bin2hex(random_bytes(16)));
             if (!$guard->isMessageSafe($message)) {
-                $this->respond(400, ['error' => 'Message rejected for security reasons.']);
+                $this->respond(403, ['error' => 'Message rejected for security reasons.']);
             }
         }
 
-        $urgent = preg_match(
-            '/\b(?:awaria|krytyczne|pilne|down|broken|ASAP)\b|nie\s+działa\s+cały\s+system/iu',
-            $message,
-        ) === 1;
+        $urgent = false;
+        if ($this->getEnvBool('ENABLE_URGENCY_CHECK', true)) {
+            $textToScan = ($subject ?? '') . ' ' . $message;
+            $urgent = preg_match(
+                '/\b(?:awaria|krytyczne|pilne|down|broken|ASAP)\b|nie\s+działa\s+cały\s+system/iu',
+                $textToScan,
+            ) === 1;
+        }
 
         $reply = MessageRouterAgent::forSender($email, $message, $subject, $urgent)->route($message);
         $this->respond(200, ['message' => $reply]);
     }
 
-    private function isSecurityGuardEnabled(): bool
+    private function getEnvBool(string $key, bool $default = true): bool
     {
-        $value = getenv('ENABLE_SECURITY_GUARD');
+        $value = getenv($key);
         if ($value === false) {
-            return true;
+            return $default;
         }
 
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $default;
     }
 
     private function respond(int $statusCode, array $payload): never

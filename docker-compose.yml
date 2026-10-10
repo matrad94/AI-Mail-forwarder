@@ -6,7 +6,12 @@ services:
     ports:
       - "8000:8000"
     environment:
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434/api}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      SMTP_HOST: ${SMTP_HOST:-mailhog}
+      SMTP_PORT: ${SMTP_PORT:-1025}
       ENABLE_SECURITY_GUARD: ${ENABLE_SECURITY_GUARD:-true}
+      ENABLE_URGENCY_CHECK: ${ENABLE_URGENCY_CHECK:-true}
     volumes:
       - ./config/rules.txt:/var/www/html/config/rules.txt:ro
     depends_on:
@@ -39,7 +44,7 @@ services:
         condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
-    command: ["pull", "qwen2.5:3b"]
+    command: ["pull", "${OLLAMA_MODEL:-qwen2.5:3b}"]
     volumes:
       - ollama_data:/root/.ollama
     networks:

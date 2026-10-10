@@ -25,6 +25,16 @@ docker compose up -d --build
 
 Compose buduje API, uruchamia Ollamę i MailHog, pobiera model `qwen2.5:3b`, a następnie uruchamia API po inicjalizacji modelu. Pierwsze uruchomienie może potrwać kilka minut.
 
+### Konfiguracja środowiska
+
+Utwórz lokalny plik `.env` na podstawie przykładu, a następnie w razie potrzeby dostosuj wartości:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Docker Compose wczytuje `.env` automatycznie. Wartości domyślne z Compose są używane również wtedy, gdy lokalnego `.env` nie ma. Flagi `ENABLE_SECURITY_GUARD` i `ENABLE_URGENCY_CHECK` można ustawić na `false`, aby wyłączyć odpowiednie kontrole.
+
 | Usługa | Adres |
 | --- | --- |
 | API | `http://localhost:8000` |
